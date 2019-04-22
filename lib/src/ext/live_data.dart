@@ -1,7 +1,7 @@
 import 'package:flib_lifecycle/src/lifecycle.dart';
 import 'package:flutter/foundation.dart';
 
-typedef FLiveDataObserver<T>(T value);
+typedef void FLiveDataObserver(dynamic value);
 
 class FLiveData<T> extends ValueNotifier<T> {
   final Map<FLiveDataObserver, _ObserverWrapper> mapObserver = {};
@@ -9,8 +9,7 @@ class FLiveData<T> extends ValueNotifier<T> {
   FLiveData(T value) : super(value);
 
   /// 添加观察者
-  void addObserver(
-      FLiveDataObserver<T> observer, FLifecycleOwner lifecycleOwner) {
+  void addObserver(FLiveDataObserver observer, FLifecycleOwner lifecycleOwner) {
     if (mapObserver.containsKey(observer)) {
       return;
     }
@@ -23,7 +22,7 @@ class FLiveData<T> extends ValueNotifier<T> {
   }
 
   /// 移除观察者
-  void removeObserver(FLiveDataObserver<T> observer) {
+  void removeObserver(FLiveDataObserver observer) {
     final _ObserverWrapper wrapper = mapObserver.remove(observer);
     if (wrapper != null) {
       wrapper.unregister();
@@ -31,10 +30,10 @@ class FLiveData<T> extends ValueNotifier<T> {
   }
 }
 
-class _ObserverWrapper<T> {
-  final FLiveDataObserver<T> observer;
+class _ObserverWrapper {
+  final FLiveDataObserver observer;
   final FLifecycle lifecycle;
-  final ValueNotifier<T> valueNotifier;
+  final ValueNotifier valueNotifier;
 
   _ObserverWrapper({
     this.observer,
