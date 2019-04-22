@@ -12,22 +12,30 @@ class FLiveData<T> extends ValueNotifier<T> {
   void addObserver(
     FLiveDataObserver observer,
     FLifecycleOwner lifecycleOwner, {
-    bool notifyImmediately = true,
+    bool notifyAfterAdded = true,
+    bool notifyLazy = true,
   }) {
     if (mapObserver.containsKey(observer)) {
       return;
     }
 
-    final _ObserverWrapper wrapper = _ObserverWrapper(
-      observer: observer,
-      lifecycle: lifecycleOwner.getLifecycle(),
-      liveData: this,
-    );
+    assert(notifyLazy != null);
+    final _ObserverWrapper wrapper = notifyLazy
+        ? _LazyObserverWrapper(
+            observer: observer,
+            lifecycle: lifecycleOwner.getLifecycle(),
+            liveData: this,
+          )
+        : _ObserverWrapper(
+            observer: observer,
+            lifecycle: lifecycleOwner.getLifecycle(),
+            liveData: this,
+          );
 
     mapObserver[observer] = wrapper;
 
-    assert(notifyImmediately != null);
-    if (notifyImmediately) {
+    assert(notifyAfterAdded != null);
+    if (notifyAfterAdded) {
       wrapper.liveDataListener();
     }
   }
@@ -72,5 +80,49 @@ class _ObserverWrapper {
   void unregister() {
     liveData.removeListener(liveDataListener);
     lifecycle.removeObserver(lifecycleObserver);
+  }
+}
+
+class _LazyObserverWrapper extends _ObserverWrapper {
+  dynamic _value;
+  bool _changed = false;
+
+  _LazyObserverWrapper({
+    FLiveDataObserver observer,
+    FLifecycle lifecycle,
+    FLiveData liveData,
+  }) : super(
+          observer: observer,
+          lifecycle: lifecycle,
+          liveData: liveData,
+        );
+
+  @override
+  void lifecycleObserver(FLifecycleEvent event, FLifecycle lifecycle) {
+    super.lifecycleObserver(event, lifecycle);
+    _notifyIfNeed();
+  }
+
+  @override
+  void liveDataListener() {
+    _setValue(liveData.value);
+    _notifyIfNeed();
+  }
+
+  void _setValue(dynamic value) {
+    if (_value != value) {
+      this._value = value;
+      this._changed = true;
+    }
+  }
+
+  void _notifyIfNeed() {
+    if (_changed) {
+      final FLifecycleState state = lifecycle.getCurrentState();
+      if (state.index >= FLifecycleState.started.index) {
+        _changed = false;
+        super.liveDataListener();
+      }
+    }
   }
 }
