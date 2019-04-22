@@ -9,16 +9,27 @@ class FLiveData<T> extends ValueNotifier<T> {
   FLiveData(T value) : super(value);
 
   /// 添加观察者
-  void addObserver(FLiveDataObserver observer, FLifecycleOwner lifecycleOwner) {
+  void addObserver(
+    FLiveDataObserver observer,
+    FLifecycleOwner lifecycleOwner, {
+    bool notifyImmediately = true,
+  }) {
     if (mapObserver.containsKey(observer)) {
       return;
     }
 
-    mapObserver[observer] = _ObserverWrapper(
+    final _ObserverWrapper wrapper = _ObserverWrapper(
       observer: observer,
       lifecycle: lifecycleOwner.getLifecycle(),
       liveData: this,
     );
+
+    mapObserver[observer] = wrapper;
+
+    assert(notifyImmediately != null);
+    if (notifyImmediately) {
+      wrapper.liveDataListener();
+    }
   }
 
   /// 移除观察者
