@@ -9,14 +9,15 @@ class FLiveData<T> extends ValueNotifier<T> {
   FLiveData(T value) : super(value);
 
   /// 添加观察者
-  void addObserver(FLiveDataObserver<T> observer, FLifecycle lifecycle) {
+  void addObserver(
+      FLiveDataObserver<T> observer, FLifecycleOwner lifecycleOwner) {
     if (mapObserver.containsKey(observer)) {
       return;
     }
 
     mapObserver[observer] = _ObserverWrapper(
       observer: observer,
-      lifecycle: lifecycle,
+      lifecycle: lifecycleOwner.getLifecycle(),
       valueNotifier: this,
     );
   }
