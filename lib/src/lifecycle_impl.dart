@@ -170,8 +170,6 @@ FLifecycleEvent _downEvent(FLifecycleState state) {
   }
 }
 
-typedef bool _isCancel();
-
 class _ObserverWrapper {
   final FLifecycleObserver observer;
   final FLifecycle lifecycle;
@@ -188,9 +186,7 @@ class _ObserverWrapper {
             ? FLifecycleState.destroyed
             : FLifecycleState.initialized;
 
-  void sync({
-    _isCancel isCancel,
-  }) {
+  void sync({bool isCancel()}) {
     assert(isCancel != null);
 
     while (true) {
@@ -203,7 +199,7 @@ class _ObserverWrapper {
         break;
       }
 
-      if (isCancel != null && isCancel()) {
+      if (isCancel()) {
         break;
       }
 
