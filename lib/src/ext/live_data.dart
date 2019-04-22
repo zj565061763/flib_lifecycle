@@ -17,7 +17,7 @@ class FLiveData<T> extends ValueNotifier<T> {
     mapObserver[observer] = _ObserverWrapper(
       observer: observer,
       lifecycle: lifecycleOwner.getLifecycle(),
-      valueNotifier: this,
+      liveData: this,
     );
   }
 
@@ -33,33 +33,33 @@ class FLiveData<T> extends ValueNotifier<T> {
 class _ObserverWrapper {
   final FLiveDataObserver observer;
   final FLifecycle lifecycle;
-  final ValueNotifier valueNotifier;
+  final FLiveData liveData;
 
   _ObserverWrapper({
     this.observer,
     this.lifecycle,
-    this.valueNotifier,
+    this.liveData,
   })  : assert(observer != null),
         assert(lifecycle != null),
         assert(lifecycle.getCurrentState() != FLifecycleState.destroyed,
             'Can not add observer when lifecycle is destroyed'),
-        assert(valueNotifier != null) {
-    valueNotifier.addListener(valueNotifierListener);
+        assert(liveData != null) {
+    liveData.addListener(liveDataListener);
     lifecycle.addObserver(lifecycleObserver);
   }
 
   void lifecycleObserver(FLifecycleEvent event, FLifecycle lifecycle) {
     if (event == FLifecycleEvent.onDestroy) {
-      unregister();
+      liveData.removeObserver(observer);
     }
   }
 
-  void valueNotifierListener() {
-    observer(valueNotifier.value);
+  void liveDataListener() {
+    observer(liveData.value);
   }
 
   void unregister() {
-    valueNotifier.removeListener(valueNotifierListener);
+    liveData.removeListener(liveDataListener);
     lifecycle.removeObserver(lifecycleObserver);
   }
 }
