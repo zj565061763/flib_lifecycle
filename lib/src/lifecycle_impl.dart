@@ -16,15 +16,10 @@ class SimpleLifecycle implements FLifecycle {
       }
     }
 
-    final FLifecycleState state = _state == FLifecycleState.destroyed
-        ? FLifecycleState.destroyed
-        : FLifecycleState.initialized;
-
     final _ObserverWrapper wrapper = _ObserverWrapper(
       observer: observer,
-      state: state,
+      lifecycle: this,
     );
-
     _listObserver.add(wrapper);
 
     final bool willResync = _checkWillResync();
@@ -93,11 +88,10 @@ class SimpleLifecycle implements FLifecycle {
 
       for (_ObserverWrapper item in listCopy) {
         item.sync(
-          getLifecycle: () => this,
-          isCancel: () => _needResync,
+          isCancel: _cancelCurrentSync,
         );
 
-        if (_needResync) {
+        if (_cancelCurrentSync()) {
           break;
         }
       }
@@ -127,6 +121,10 @@ class SimpleLifecycle implements FLifecycle {
     }
 
     return true;
+  }
+
+  bool _cancelCurrentSync() {
+    return _needResync;
   }
 }
 
@@ -172,29 +170,31 @@ FLifecycleEvent _downEvent(FLifecycleState state) {
   }
 }
 
-typedef FLifecycle _getLifecycle();
 typedef bool _isCancel();
 
 class _ObserverWrapper {
   final FLifecycleObserver observer;
+  final FLifecycle lifecycle;
   FLifecycleState state;
+
   bool removed = false;
 
   _ObserverWrapper({
     this.observer,
-    this.state,
+    this.lifecycle,
   })  : assert(observer != null),
-        assert(state == FLifecycleState.initialized ||
-            state == FLifecycleState.destroyed);
+        assert(lifecycle != null),
+        this.state = lifecycle.getCurrentState() == FLifecycleState.destroyed
+            ? FLifecycleState.destroyed
+            : FLifecycleState.initialized;
 
   void sync({
-    _getLifecycle getLifecycle,
     _isCancel isCancel,
   }) {
-    assert(getLifecycle != null);
+    assert(isCancel != null);
 
     while (true) {
-      final FLifecycleState outState = getLifecycle().getCurrentState();
+      final FLifecycleState outState = lifecycle.getCurrentState();
       if (this.state == outState) {
         break;
       }
@@ -212,8 +212,8 @@ class _ObserverWrapper {
           : _downEvent(state);
 
       final FLifecycleState nextState = _getStateAfter(nextEvent);
-      observer(nextEvent, getLifecycle());
       this.state = nextState;
+      observer(nextEvent, lifecycle);
     }
   }
 }
