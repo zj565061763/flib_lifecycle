@@ -1,16 +1,16 @@
 import 'package:flib_lifecycle/src/lifecycle.dart';
 import 'package:flutter/foundation.dart';
 
-typedef void FLiveDataObserver(dynamic value);
+typedef void FValueNotifierObserver(dynamic value);
 
-class FLiveData<T> extends ValueNotifier<T> {
-  final Map<FLiveDataObserver, _ObserverWrapper> mapObserver = {};
+class FValueNotifier<T> extends ValueNotifier<T> {
+  final Map<FValueNotifierObserver, _ObserverWrapper> mapObserver = {};
 
-  FLiveData(T value) : super(value);
+  FValueNotifier(T value) : super(value);
 
   /// 添加观察者
   void addObserver(
-    FLiveDataObserver observer,
+    FValueNotifierObserver observer,
     FLifecycleOwner lifecycleOwner, {
     bool notifyAfterAdded = true,
     bool notifyLazy = true,
@@ -24,24 +24,24 @@ class FLiveData<T> extends ValueNotifier<T> {
         ? _LazyObserverWrapper(
             observer: observer,
             lifecycle: lifecycleOwner.getLifecycle(),
-            liveData: this,
+            valueNotifier: this,
           )
         : _ObserverWrapper(
             observer: observer,
             lifecycle: lifecycleOwner.getLifecycle(),
-            liveData: this,
+            valueNotifier: this,
           );
 
     mapObserver[observer] = wrapper;
 
     assert(notifyAfterAdded != null);
     if (notifyAfterAdded) {
-      wrapper.liveDataListener();
+      wrapper.valueListener();
     }
   }
 
   /// 移除观察者
-  void removeObserver(FLiveDataObserver observer) {
+  void removeObserver(FValueNotifierObserver observer) {
     final _ObserverWrapper wrapper = mapObserver.remove(observer);
     if (wrapper != null) {
       wrapper.unregister();
@@ -50,35 +50,35 @@ class FLiveData<T> extends ValueNotifier<T> {
 }
 
 class _ObserverWrapper {
-  final FLiveDataObserver observer;
+  final FValueNotifierObserver observer;
   final FLifecycle lifecycle;
-  final FLiveData liveData;
+  final FValueNotifier valueNotifier;
 
   _ObserverWrapper({
     this.observer,
     this.lifecycle,
-    this.liveData,
+    this.valueNotifier,
   })  : assert(observer != null),
         assert(lifecycle != null),
         assert(lifecycle.getCurrentState() != FLifecycleState.destroyed,
             'Can not add observer when lifecycle is destroyed'),
-        assert(liveData != null) {
-    liveData.addListener(liveDataListener);
+        assert(valueNotifier != null) {
+    valueNotifier.addListener(valueListener);
     lifecycle.addObserver(lifecycleObserver);
   }
 
   void lifecycleObserver(FLifecycleEvent event, FLifecycle lifecycle) {
     if (event == FLifecycleEvent.onDestroy) {
-      liveData.removeObserver(observer);
+      valueNotifier.removeObserver(observer);
     }
   }
 
-  void liveDataListener() {
-    observer(liveData.value);
+  void valueListener() {
+    observer(valueNotifier.value);
   }
 
   void unregister() {
-    liveData.removeListener(liveDataListener);
+    valueNotifier.removeListener(valueListener);
     lifecycle.removeObserver(lifecycleObserver);
   }
 }
@@ -88,13 +88,13 @@ class _LazyObserverWrapper extends _ObserverWrapper {
   bool _changed = false;
 
   _LazyObserverWrapper({
-    FLiveDataObserver observer,
+    FValueNotifierObserver observer,
     FLifecycle lifecycle,
-    FLiveData liveData,
+    FValueNotifier valueNotifier,
   }) : super(
           observer: observer,
           lifecycle: lifecycle,
-          liveData: liveData,
+          valueNotifier: valueNotifier,
         );
 
   @override
@@ -104,8 +104,8 @@ class _LazyObserverWrapper extends _ObserverWrapper {
   }
 
   @override
-  void liveDataListener() {
-    _setValue(liveData.value);
+  void valueListener() {
+    _setValue(valueNotifier.value);
     _notifyIfNeed();
   }
 
@@ -121,7 +121,7 @@ class _LazyObserverWrapper extends _ObserverWrapper {
       final FLifecycleState state = lifecycle.getCurrentState();
       if (state.index >= FLifecycleState.started.index) {
         _changed = false;
-        super.liveDataListener();
+        super.valueListener();
       }
     }
   }
