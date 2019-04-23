@@ -1,4 +1,4 @@
-# flib_lifecycle
+# About
 
 A lifecycle Flutter package
 
