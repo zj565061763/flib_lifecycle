@@ -4,8 +4,8 @@ A lifecycle Flutter package
 
 ## install
 ```
-  flib_lifecycle_ext:
+  flib_lifecycle:
     git:
-      url: git://github.com/zj565061763/flib_lifecycle_ext
+      url: git://github.com/zj565061763/flib_lifecycle
       ref: 1.0.0-rc1
 ```
