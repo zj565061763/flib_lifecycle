@@ -2,7 +2,7 @@ name: flib_lifecycle
 description: A new Flutter package.
 version: 1.0.0
 author: Sunday<565061763@qq.com>
-homepage: https://github.com/zj565061763
+homepage: https://github.com/zj565061763/flib_lifecycle
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
