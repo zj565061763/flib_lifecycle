@@ -1,7 +1,5 @@
 # About
 
-A lifecycle Flutter package
-
 ## install
 ```
   flib_lifecycle:
