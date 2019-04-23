@@ -1,7 +1,7 @@
 import 'lifecycle.dart';
 
 class SimpleLifecycle implements FLifecycle {
-  final List<_ObserverWrapper> _listObserver = [];
+  final Map<FLifecycleObserver, _ObserverWrapper> _mapObserver = {};
   FLifecycleState _state = FLifecycleState.initialized;
 
   bool _syncing = false;
@@ -10,17 +10,16 @@ class SimpleLifecycle implements FLifecycle {
   @override
   void addObserver(FLifecycleObserver observer) {
     assert(observer != null);
-    for (_ObserverWrapper item in _listObserver) {
-      if (item.observer == observer) {
-        return;
-      }
+
+    if (_mapObserver.containsKey(observer)) {
+      return;
     }
 
     final _ObserverWrapper wrapper = _ObserverWrapper(
       observer: observer,
       lifecycle: this,
     );
-    _listObserver.add(wrapper);
+    _mapObserver[observer] = wrapper;
 
     final bool willResync = _checkWillResync();
     if (willResync) {
@@ -34,12 +33,8 @@ class SimpleLifecycle implements FLifecycle {
   void removeObserver(FLifecycleObserver observer) {
     assert(observer != null);
 
-    final int index = _listObserver.indexWhere((item) {
-      return item.observer == observer;
-    });
-
-    if (index >= 0) {
-      final _ObserverWrapper wrapper = _listObserver.removeAt(index);
+    final _ObserverWrapper wrapper = _mapObserver.remove(observer);
+    if (wrapper != null) {
       wrapper.removed = true;
     }
   }
@@ -83,11 +78,11 @@ class SimpleLifecycle implements FLifecycle {
     while (!_isSynced()) {
       _needResync = false;
 
-      final List<_ObserverWrapper> listCopy =
-          List.from(_listObserver, growable: false);
+      final List<_ObserverWrapper> list =
+          List.from(_mapObserver.values, growable: false);
 
-      for (_ObserverWrapper item in listCopy) {
-        item.sync(
+      for (_ObserverWrapper wrapper in list) {
+        wrapper.sync(
           isCancel: _cancelCurrentSync,
         );
 
@@ -109,13 +104,17 @@ class SimpleLifecycle implements FLifecycle {
   }
 
   bool _isSynced() {
-    if (_listObserver.isEmpty) {
+    if (_mapObserver.isEmpty) {
       return true;
     }
 
-    for (int i = _listObserver.length - 1; i >= 0; i--) {
-      final _ObserverWrapper item = _listObserver[i];
-      if (item.state != _state) {
+    final List<_ObserverWrapper> list =
+        List.from(_mapObserver.values, growable: false);
+    final int length = list.length;
+
+    for (int i = length - 1; i >= 0; i--) {
+      final _ObserverWrapper wrapper = list[i];
+      if (wrapper.state != _state) {
         return false;
       }
     }
