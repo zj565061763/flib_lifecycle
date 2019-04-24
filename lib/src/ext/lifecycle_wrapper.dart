@@ -43,7 +43,7 @@ abstract class FLifecycleWrapper {
     onDestroy();
   }
 
-  void onLifecycleEvent(FLifecycleEvent event);
+  void onLifecycleEvent(FLifecycleEvent event) {}
 
   void onDestroy();
 }
