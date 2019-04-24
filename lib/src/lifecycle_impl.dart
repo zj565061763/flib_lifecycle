@@ -1,11 +1,16 @@
 import 'lifecycle.dart';
 
 class SimpleLifecycle implements FLifecycle {
+  /// 销毁后是否可以从新创建
+  final bool recreateAfterDestroyed;
+
   final Map<FLifecycleObserver, _ObserverWrapper> _mapObserver = {};
   FLifecycleState _state = FLifecycleState.initialized;
 
   bool _syncing = false;
   bool _needResync = false;
+
+  SimpleLifecycle({this.recreateAfterDestroyed = false});
 
   @override
   void addObserver(FLifecycleObserver observer) {
@@ -13,6 +18,10 @@ class SimpleLifecycle implements FLifecycle {
 
     if (_mapObserver.containsKey(observer)) {
       return;
+    }
+
+    if (_checkDestroyed()) {
+      throw Exception('Can not add observer after destroyed');
     }
 
     final _ObserverWrapper wrapper = _ObserverWrapper(
@@ -61,6 +70,10 @@ class SimpleLifecycle implements FLifecycle {
     assert(next != null);
     if (_state == next) {
       return;
+    }
+
+    if (_checkDestroyed()) {
+      throw Exception('Can not change state after destroyed');
     }
 
     _state = next;
@@ -124,6 +137,15 @@ class SimpleLifecycle implements FLifecycle {
 
   bool _cancelCurrentSync() {
     return _needResync;
+  }
+
+  bool _checkDestroyed() {
+    if (!recreateAfterDestroyed) {
+      if (_state == FLifecycleState.destroyed) {
+        return true;
+      }
+    }
+    return false;
   }
 }
 
