@@ -1,4 +1,5 @@
-typedef void FLifecycleObserver(FLifecycleEvent event, FLifecycle lifecycle);
+typedef FLifecycleObserver = void Function(
+    FLifecycleEvent event, FLifecycle lifecycle);
 
 abstract class FLifecycle {
   /// 添加观察者
