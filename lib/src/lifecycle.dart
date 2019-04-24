@@ -11,6 +11,14 @@ abstract class FLifecycle {
   FLifecycleState getCurrentState();
 }
 
+abstract class FLifecycleRegistry extends FLifecycle {
+  /// 标注为某个状态
+  void markState(FLifecycleState state);
+
+  /// 通知生命周期事件
+  void handleLifecycleEvent(FLifecycleEvent event);
+}
+
 abstract class FLifecycleOwner {
   FLifecycle getLifecycle();
 }

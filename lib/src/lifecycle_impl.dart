@@ -1,6 +1,6 @@
 import 'lifecycle.dart';
 
-class SimpleLifecycle implements FLifecycle {
+class SimpleLifecycleRegistry implements FLifecycleRegistry {
   /// 销毁后是否可以从新创建
   final bool recreateAfterDestroyed;
 
@@ -10,7 +10,7 @@ class SimpleLifecycle implements FLifecycle {
   bool _syncing = false;
   bool _needResync = false;
 
-  SimpleLifecycle({this.recreateAfterDestroyed = false});
+  SimpleLifecycleRegistry({this.recreateAfterDestroyed = false});
 
   @override
   void addObserver(FLifecycleObserver observer) {
@@ -53,12 +53,12 @@ class SimpleLifecycle implements FLifecycle {
     return _state;
   }
 
-  /// 标注当前状态
+  @override
   void markState(FLifecycleState state) {
     _moveToState(state);
   }
 
-  /// 通知生命周期事件
+  @override
   void handleLifecycleEvent(FLifecycleEvent event) {
     assert(event != null);
 

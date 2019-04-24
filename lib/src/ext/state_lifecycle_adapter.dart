@@ -3,17 +3,21 @@ import 'package:flib_lifecycle/src/lifecycle_impl.dart';
 import 'package:flutter/material.dart';
 
 class FStateLifecycleAdapter implements FLifecycleOwner, FStateLifecycle {
-  final SimpleLifecycle _lifecycle = SimpleLifecycle();
+  final FLifecycleRegistry _lifecycleRegistry;
   bool _started;
+
+  FStateLifecycleAdapter({FLifecycleRegistry lifecycleRegistry})
+      : this._lifecycleRegistry =
+            lifecycleRegistry ?? SimpleLifecycleRegistry();
 
   @override
   FLifecycle getLifecycle() {
-    return _lifecycle;
+    return _lifecycleRegistry;
   }
 
   @override
   void initState() {
-    _lifecycle.handleLifecycleEvent(FLifecycleEvent.onCreate);
+    _lifecycleRegistry.handleLifecycleEvent(FLifecycleEvent.onCreate);
   }
 
   @override
@@ -32,7 +36,7 @@ class FStateLifecycleAdapter implements FLifecycleOwner, FStateLifecycle {
 
   @override
   void dispose() {
-    _lifecycle.handleLifecycleEvent(FLifecycleEvent.onDestroy);
+    _lifecycleRegistry.handleLifecycleEvent(FLifecycleEvent.onDestroy);
   }
 
   void _notifyStartOrStop() {
@@ -40,9 +44,9 @@ class FStateLifecycleAdapter implements FLifecycleOwner, FStateLifecycle {
       return;
     }
     if (_started) {
-      _lifecycle.handleLifecycleEvent(FLifecycleEvent.onStart);
+      _lifecycleRegistry.handleLifecycleEvent(FLifecycleEvent.onStart);
     } else {
-      _lifecycle.handleLifecycleEvent(FLifecycleEvent.onStop);
+      _lifecycleRegistry.handleLifecycleEvent(FLifecycleEvent.onStop);
     }
   }
 }
