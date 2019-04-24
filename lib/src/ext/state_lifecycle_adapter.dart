@@ -36,6 +36,7 @@ class FStateLifecycleAdapter implements FLifecycleOwner, FStateLifecycle {
 
   @override
   void dispose() {
+    _started = null;
     _lifecycleRegistry.handleLifecycleEvent(FLifecycleEvent.onDestroy);
   }
 
