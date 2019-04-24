@@ -30,8 +30,8 @@ class SimpleLifecycle implements FLifecycle {
     );
     _mapObserver[observer] = wrapper;
 
-    final bool willResync = _checkWillResync();
-    if (willResync) {
+    final bool syncing = _checkSyncing();
+    if (syncing) {
       // 不做任何处理
     } else {
       _sync();
@@ -78,8 +78,8 @@ class SimpleLifecycle implements FLifecycle {
 
     _state = next;
 
-    final bool willResync = _checkWillResync();
-    if (willResync) {
+    final bool syncing = _checkSyncing();
+    if (syncing) {
       // 不做任何处理
     } else {
       _sync();
@@ -108,14 +108,6 @@ class SimpleLifecycle implements FLifecycle {
     _syncing = false;
   }
 
-  bool _checkWillResync() {
-    if (_syncing) {
-      _needResync = true;
-      return true;
-    }
-    return false;
-  }
-
   bool _isSynced() {
     if (_mapObserver.isEmpty) {
       return true;
@@ -137,6 +129,14 @@ class SimpleLifecycle implements FLifecycle {
 
   bool _cancelCurrentSync() {
     return _needResync;
+  }
+
+  bool _checkSyncing() {
+    if (_syncing) {
+      _needResync = true;
+      return true;
+    }
+    return false;
   }
 
   bool _checkDestroyed() {
