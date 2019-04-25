@@ -61,7 +61,7 @@ class FFullLifecycleObserverAdapter implements FGenericLifecycleObserver {
   void onLifecycleEvent(FLifecycleEvent event, FLifecycle lifecycle) {
     switch (event) {
       case FLifecycleEvent.onCreate:
-        observer.onStart(lifecycle);
+        observer.onCreate(lifecycle);
         break;
       case FLifecycleEvent.onStart:
         observer.onStart(lifecycle);
