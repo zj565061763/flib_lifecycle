@@ -14,8 +14,6 @@ class SimpleLifecycleRegistry implements FLifecycleRegistry {
 
   @override
   void addObserver(FLifecycleObserver observer) {
-    assert(observer != null);
-
     if (_mapObserver.containsKey(observer)) {
       return;
     }
@@ -40,8 +38,6 @@ class SimpleLifecycleRegistry implements FLifecycleRegistry {
 
   @override
   void removeObserver(FLifecycleObserver observer) {
-    assert(observer != null);
-
     final _ObserverWrapper wrapper = _mapObserver.remove(observer);
     if (wrapper != null) {
       wrapper.removed = true;
