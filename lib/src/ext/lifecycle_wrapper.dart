@@ -1,5 +1,4 @@
 import 'package:flib_lifecycle/src/lifecycle.dart';
-import 'package:meta/meta.dart';
 
 abstract class FLifecycleWrapper {
   final FLifecycle lifecycle;
@@ -30,7 +29,6 @@ abstract class FLifecycleWrapper {
     }
   }
 
-  @mustCallSuper
   void destroy() {
     if (_isDestroyed) {
       return;
