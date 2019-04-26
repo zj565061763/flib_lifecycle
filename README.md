@@ -19,7 +19,7 @@
 ```
 
 ## Example
-```
+```dart
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
@@ -30,7 +30,7 @@ class _HomePageState extends State<HomePage> implements FLifecycleOwner {
 
   @override
   FLifecycle getLifecycle() {
-    return null;
+    return _lifecycleRegistry;
   }
 
   @override
