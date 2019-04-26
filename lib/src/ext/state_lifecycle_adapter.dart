@@ -36,7 +36,7 @@ class FStateLifecycleAdapter implements FLifecycleOwner, FStateLifecycle {
 
   @override
   void deactivate() {
-    assert(_startedMarker = false);
+    assert(_startedMarker == false);
 
     final bool expected = !_started;
     if (expected) {
