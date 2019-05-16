@@ -53,3 +53,5 @@ class _HomePageState extends State<HomePage> implements FLifecycleOwner {
   }
 }
 ```
+
+如果需要完整的State生命周期分发，可以参考[这里](https://github.com/zj565061763/flib_core/blob/master/lib/src/lifecycle_ext/state_lifecycle_adapter.dart)
